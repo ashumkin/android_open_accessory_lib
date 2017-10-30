@@ -31,8 +31,8 @@ int main(){
   oa = new OpenAccessory("RASPBERRY PI", "RASPBERRY PI",
                          "Test OpenDevice Lib", "1.0",
                          "https://github.com/schroeder-",
-                         "1337", USB_VENDOR_GOOGLE,
-                         USB_PRODUCT_NEXUS_S);
+                         "1337", USB_VENDOR_XIAOMI,
+                         USB_PRODUCT_REDMI4X);
   cout << "Dev Loaded" << endl;
   }
   catch(OpenAccessoryException& e){

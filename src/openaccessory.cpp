@@ -74,13 +74,13 @@ bool OpenAccessory::check_for_accessory(uint16_t vid, uint16_t pid){
 
 void OpenAccessory::load_accessory(void){
   bool set = false;
-#ifndef _MSC_VER
-  for(auto& p: _pid){
+/* #ifndef _MSC_VER */
+/*   for(auto& p: _pid){ */
 	  
-#else
+/* #else */
   for(int i = 0; i < _pid_size; i++){
 	  uint32_t p = _pid[i];
-#endif
+/* #endif */
 	
     if(set) continue;
     if((dev = libusb_open_device_with_vid_pid(NULL, 0x18D1, p)) != NULL){

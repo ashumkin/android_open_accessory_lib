@@ -18,7 +18,7 @@
 #ifndef OPENACCESSORY_HPP
 #define OPENACCESSORY_HPP
 
-#include "libusb.h"
+#include "libusb-1.0/libusb.h"
 #include <stdint.h>
 #include <string>
 #include <vector>
@@ -35,6 +35,8 @@
 
 #define USB_VENDOR_GOOGLE 0x18d1
 #define USB_PRODUCT_NEXUS_S 0x4e22
+#define USB_VENDOR_XIAOMI 0x2717
+#define USB_PRODUCT_REDMI4X 0xFF48
 
 using namespace std;
 class OpenAccessoryException : public runtime_error{
@@ -49,12 +51,12 @@ private:
   libusb_device_handle* dev;
   const static uint8_t in_addr = 0x85;
   const static uint8_t out_addr = 0x07;
-#ifndef _MSC_VER
-  const static array<uint32_t, 4> _pid {{0x2D00, 0x2D01, 0x2D04, 0x2D05}};
-#else
+/* #ifndef _MSC_VER */
+  /* const static array<uint32_t, 4> _pid {{0x2D00, 0x2D01, 0x2D04, 0x2D05}}; */
+/* #else */
   const static uint32_t _pid[];
   const static uint32_t _pid_size = 4;
-#endif
+/* #endif */
   static bool lib_load;
 
   string man;
