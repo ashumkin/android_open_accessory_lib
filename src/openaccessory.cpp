@@ -82,9 +82,9 @@ void OpenAccessory::load_accessory(void){
 	  uint32_t p = _pid[i];
 /* #endif */
 	
-    if(set) continue;
     if((dev = libusb_open_device_with_vid_pid(NULL, 0x18D1, p)) != NULL){
       set = true;
+      break;
     }
   }
   
