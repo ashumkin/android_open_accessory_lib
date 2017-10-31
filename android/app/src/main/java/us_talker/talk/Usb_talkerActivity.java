@@ -49,7 +49,7 @@ import android.widget.Toast;
 import android.widget.TextView;
 import android.util.Log;
 
-public class Usb_talkerActivity extends Activity  implements SensorEventListener{
+public class Usb_talkerActivity extends Activity  implements SensorEventListener, Runnable {
 
 
 
@@ -107,38 +107,53 @@ public class Usb_talkerActivity extends Activity  implements SensorEventListener
 		Log.d(TAG, "openAccessory: " + mAccessory);
 		mFileDescriptor = mUsbManager.openAccessory(mAccessory);
 		avalible = true;
-		if (mFileDescriptor != null) { 
+		if (mFileDescriptor != null) {
 			FileDescriptor fd = mFileDescriptor.getFileDescriptor();
-			mInputStream = new FileInputStream(fd);
-			mOutputStream = new FileOutputStream(fd);
-			avalible = true;
-			readTh = new Thread(){
-				@Override
-				public void run(){
-					final byte[] buffer = new byte[512];
-					while(true){
-						try {
-							if(mInputStream.available() > 0){
-								mInputStream.read(buffer, 0, 512);
-								tv.post(new Runnable(){
-									private byte[] buf = buffer.clone();
-									public void run() {
-										tv.append(new String(buf));
-									}});
-							}
-							else{
-								Thread.sleep(50);
-							}
-						} catch (IOException e) {
-							e.printStackTrace();
-							return;
-						} catch (InterruptedException e) {
-							e.printStackTrace();
-							return;
-						}
-					}
-				}
+			Log.d(TAG, "mFileDescriptor: " + fd.toString());
+			try {
+				mInputStream = new FileInputStream(fd);
+				mOutputStream = new FileOutputStream(fd);
+				avalible = true;
+				readTh = new Thread(null, this, "AccessoryController");
+				readTh.start();
+			} catch (Exception e) {
+				Log.d(TAG, "openAccessory: streams: " + e.toString());
+				e.printStackTrace();
+				return;
 			};
+		} else {
+			Log.d(TAG, "mFileDescriptor is NULL");
+		}
+	}
+
+	public void run() {
+		final byte[] buffer = new byte[512];
+		Log.d(TAG, "Thread is run");
+		Log.d(TAG, "mInputStream: " + mInputStream.toString());
+		while (true) {
+			try {
+				if (mInputStream.available() > 0) {
+					mInputStream.read(buffer, 0, 512);
+					tv.post(new Runnable() {
+						private byte[] buf = buffer.clone();
+
+						public void run() {
+							tv.append(new String(buf));
+						}
+					});
+				} else {
+					Thread.sleep(50);
+					Log.d(TAG, "Thread.sleep(50)");
+				}
+			} catch (IOException e) {
+				Log.d(TAG, "IO exception: " + e.toString());
+				e.printStackTrace();
+				return;
+			} catch (InterruptedException e) {
+				Log.d(TAG, "Interrupted: " + e.toString());
+				e.printStackTrace();
+				return;
+			}
 		}
 	}
 	private void closeAccessory()
@@ -209,10 +224,13 @@ public class Usb_talkerActivity extends Activity  implements SensorEventListener
 			if (ACTION_USB_PERMISSION.equals(action)) {
 				synchronized (this) {
 					//mAccessory = UsbManager.getAccessory(intent);
+					Log.d(TAG, "permission " + action);
 					mAccessory = (UsbAccessory)intent.getParcelableExtra(UsbManager.EXTRA_ACCESSORY);
 					if (intent.getBooleanExtra(UsbManager.EXTRA_PERMISSION_GRANTED, false)) {
-						if(mAccessory != null){
+						if(mAccessory != null) {
 							openAccessory();//call method to set up accessory communication
+						} else {
+							Log.d(TAG, "mAccessory  is NULL");
 						}
 					}
 					else {
@@ -269,6 +287,7 @@ public class Usb_talkerActivity extends Activity  implements SensorEventListener
 			String text = "X: " + Float.toString(linear_acceleration[0]) + " Y: " + Float.toString(linear_acceleration[1]) + " Z: "
 			+ Float.toString(linear_acceleration[2]) + "\0";
 			try{
+				Log.d(TAG, text);
 				mOutputStream.write(text.getBytes());
 			}
 			catch(IOException e){
