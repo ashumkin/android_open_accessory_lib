@@ -187,6 +187,7 @@ void OpenAccessory::read_data(vector<uint8_t>& data){
   int size = 0;
   uint8_t buff[USB_READ_MAX_SIZE];
   data.clear();
+  cout << (int)in_addr << endl;
   ret = libusb_bulk_transfer(dev, in_addr, buff, USB_READ_MAX_SIZE, &size, 0);
   cout << size << endl;
   if(ret < 0){
